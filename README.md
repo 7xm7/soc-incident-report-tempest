@@ -1,9 +1,177 @@
 # 🛡️ Tempest — SOC Incident Investigation (TryHackMe)
 
-This repository contains a **Blue Team / SOC** investigation based on the **Tempest** room from TryHackMe.  
-It is structured like a real incident response case, with **evidence**, **analysis**, **queries**, and a **professional report**.
+**## Overview**
+Tempest is a digital forensics and incident response (DFIR) challenge from TryHackMe SOC Level 1 path.  
+It simulates a real world Microsoft Windows intrusion where the analyst must reconstruct the full attack life cycle using host and network evidence.
 
-> ✅ Goal: demonstrate hands-on SOC skills (Elastic/Kibana, Volatility, Wireshark, Windows logs) and investigation workflow.
+The investigation involves:
+- Parsing **Windows Event Logs** to trace process creation, network connections, and privilege escalation.
+- Inspecting **network captures** to identify C2 communications and exfiltration attempts.
+- Decoding payloads and extracting **IOCs** for threat intelligence.
+- Building a chronological attack timeline to fully understand the adversary’s actions from **initial compromise to persistence**.
 
-**Date:** 2025-08-09  
-**Analyst:** Xavier
+This report documents the complete investigation flow, key findings, and artifacts serving as a reference for both SOC workflows and DFIR methodology.
+
+---
+
+**## Tools & Artifacts Used** 
+ 
+- **EvtxECmd** → parse `.evtx` files to CSV for Timeline Explorer  
+- **Timeline Explorer** → build an event timeline  
+- **PowerShell** → compute SHA-256 hashes  
+- **CyberChef** → Base64 decoding
+- **Wireshark** → packet analysis
+
+---
+
+**## Task 1 - Preparation: Hashes: Identified SHA256 hashes of three files located in the VM directory for further threat analysis.**
+
+I ran a PowerShell script to get all hashes:
+
+- `capture.pcapng`: `CB3A1E6ACFB246F256FBFEFDB6F494941AA30A5A7C3F5258C3E63CFA27A23DC6` 
+- `sysmon.evtx`: `665DC3519C2C235188201B5A8594FEA205C3BCBC75193363B87D2837ACA3C91F`  
+- `windows.evtx`: `D0279D5292BC5B25595115032820C978838678F4333B725998CFE9253E186D60`  
+
+
+---
+
+**## Task 2 - Initial Access: Performed log analysis to map the attacker0s first actions and entry method.**
+
+A malicious document was downloaded via `chrome.exe`:
+ 
+- Filename: `free_magicules.doc`.
+
+
+
+
+- *User and machine*: `benimaru-TEMPEST`.
+
+
+
+
+
+
+
+- **PID** of Word process that opened the doc (`winword.exe`): `496`.  
+
+
+
+
+
+
+**## Task 3  — C2 Connection: Detected and validated command and control traffic between the compromised host and the attacker’s infrastructure.**
+
+- Filtering for DNS queries from that PID, I found a resolution to domain `phishteam.xyz` → IP: `167.71.199.191`.
+
+
+
+
+
+---
+
+
+**## Task 4 - Base64 Payload: Decoded and analyzed a Base64 encoded payload to understand its intent and execution.**
+
+- A child process of Word executed an obfuscated command. Decoding the Base64 showed a command that downloaded, extracted, and removed a .zip in the startup directory.  
+
+
+
+---
+
+**## Task 5 - Exploit Used: Identified the specific CVE used in the attack to exploit user account.**
+
+- The malicious file invoked `msdt.exe`. Research showed it triggered CVE-2022-30190.  
+
+
+
+
+**## Task 6 - Stage 2 Execution: Tracked secondary payload execution and correlated with attacker persistence techniques.**
+
+- Decoded payload indicated the .zip was placed in the startup folder:
+
+ `C:\Users\benimaru\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`. 
+
+- Upon login, that executes.
+
+
+
+- Stage 2 payload filename: `first.exe`.
+
+- SHA-256 hash: CE278CA242AA2023A4FE04067B0A32FBD3CA1599746C160949868FFC7FC3D7D
+
+- C2 connection to domain `resolvecyber.xyz` over port `80`.  
+
+
+
+---
+
+**## Task 7 - Malicious Document Traffic: Detected and analyzed network traffic related to a malicious document.**
+
+- Using PCAP analysis, location of the malicious payload URL embedded in `.doc`.  
+- C2 binary uses Base64 encoded `q` parameter in GET request to `…/9ab62b5` using Nim as programming language.
+
+
+
+---
+
+
+
+
+**## Task 8 - Internal Reconnaissance: Traced attacker’s enumeration activity within the internal network.**
+
+- Decoded traffic from Stage 2 shows attacker enumerating ports, stole credentials, and used a reverse SOCKS proxy to reach internal services.
+
+
+
+
+---
+
+**## Task 9 - Privilege Escalation: Confirmed attacker’s method for gaining elevated privileges.**
+
+- Attacker downloaded `spf.exe` - identified as **PrintSpoofer** and exploited `SeImpersonatePrivilege`.
+
+- Stage 2 then executed `final.exe` connecting to a new port `8080` for C2.  
+
+
+
+---
+
+
+
+**## Task 10 - Actions on Objective: Determined the attacker’s final goal and data exfiltration activity.**
+
+- After gaining system privileges, the attacker created two user accounts(shion and shuna) and added one to administrators.
+- Event:`4720`, `4732`.
+- Also executed commands via `sc.exe` for persistence.  
+
+
+
+---
+
+**##  Takedowns / Artifacts Summary (IoCs)**
+
+| Type                   	| Details                                    		 |
+|--------------------------	|---------------------------------------------	|
+| Malicious doc    	| 	`free_magicules.doc`                         |
+| Victim user/machine | 	`benimaru-tempest`                           |
+| Initial PID         	| 	`496` (Word process)                                |
+| Malicious domain/IP |	 `phishteam.xyz / 167.71.199.191`    
+| Exploit             	| 	CVE-2022-30190 (msdt.exe)            |
+| Stage 2 Payload     	| 	first.exe`, hash: `CE278CA242AA2023A4FE04067B0A32FBD3CA1599746C160949868FFC7FC3D7D`            |
+| C2 domain:port      	| 	`resolvecyber.xyz : 80`                     |
+| Escalation tool     	| 	`spf.exe` (PrintSpoofer)                    |
+| Admin user creation |	 Events `4720`, `4732`; `sc.exe` persistence |
+
+---
+
+**##  What I Learned**
+
+- The importance of building a timeline with data from multiple sources.  
+- Decoding and understanding Base64 payloads is essential for tracing full chains.  
+- Cross referencing timeline viewer + logs + packet analysis = full visibility into multi-stage intrusions.  
+
+
+---
+
+**Made by: Xavier Mota**
+**15/08/2025**
