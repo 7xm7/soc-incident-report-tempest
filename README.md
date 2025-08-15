@@ -132,6 +132,8 @@ A malicious document was downloaded via `chrome.exe`:
 - Attacker downloaded `spf.exe` - identified as **PrintSpoofer** and exploited `SeImpersonatePrivilege`.
 
 - Stage 2 then executed `final.exe` connecting to a new port `8080` for C2.  
+
+
 ![Task 9 Screenshot](screenshots_tempest/task9.png)
 
 
