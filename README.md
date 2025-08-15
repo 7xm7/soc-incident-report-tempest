@@ -174,7 +174,7 @@ A malicious document was downloaded via `chrome.exe`:
 
 - The importance of building a timeline with data from multiple sources.  
 - Decoding and understanding Base64 payloads is essential for tracing full chains.  
-- Cross referencing timeline viewer + logs + packet analysis = full visibility into multi-stage intrusions.  
+- Cross referencing Timeline Explorer + logs + packet analysis = full visibility into multi-stage intrusions.  
 
 
 ---
