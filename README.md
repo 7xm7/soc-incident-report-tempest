@@ -32,6 +32,7 @@ I ran a PowerShell script to get all hashes:
 - `sysmon.evtx`: `665DC3519C2C235188201B5A8594FEA205C3BCBC75193363B87D2837ACA3C91F`  
 - `windows.evtx`: `D0279D5292BC5B25595115032820C978838678F4333B725998CFE9253E186D60`  
 
+![Task 1 Screenshot](sreenshots/task1.png)
 
 ---
 
