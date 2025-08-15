@@ -42,21 +42,19 @@ A malicious document was downloaded via `chrome.exe`:
  
 - Filename: `free_magicules.doc`.
 
-
+![Task 2 Screenshot](sreenshots/task2_filename.png)
 
 
 - *User and machine*: `benimaru-TEMPEST`.
 
-
-
-
+![Task 2 Screenshot](sreenshots/task2_username.png)
 
 
 
 - **PID** of Word process that opened the doc (`winword.exe`): `496`.  
 
 
-
+![Task 2 Screenshot](sreenshots/task2_pid.png)
 
 
 
@@ -65,8 +63,7 @@ A malicious document was downloaded via `chrome.exe`:
 - Filtering for DNS queries from that PID, I found a resolution to domain `phishteam.xyz` → IP: `167.71.199.191`.
 
 
-
-
+![Task 3 Screenshot](sreenshots/task3.png)
 
 ---
 
@@ -75,7 +72,7 @@ A malicious document was downloaded via `chrome.exe`:
 
 - A child process of Word executed an obfuscated command. Decoding the Base64 showed a command that downloaded, extracted, and removed a .zip in the startup directory.  
 
-
+![Task 4 Screenshot](sreenshots/task4.png)
 
 ---
 
@@ -83,7 +80,7 @@ A malicious document was downloaded via `chrome.exe`:
 
 - The malicious file invoked `msdt.exe`. Research showed it triggered CVE-2022-30190.  
 
-
+![Task 5 Screenshot](sreenshots/task5.png)
 
 
 **## Task 6 - Stage 2 Execution: Tracked secondary payload execution and correlated with attacker persistence techniques.**
@@ -94,7 +91,7 @@ A malicious document was downloaded via `chrome.exe`:
 
 - Upon login, that executes.
 
-
+![Task 6 Screenshot](sreenshots/task6_timeline.png)
 
 - Stage 2 payload filename: `first.exe`.
 
@@ -102,6 +99,7 @@ A malicious document was downloaded via `chrome.exe`:
 
 - C2 connection to domain `resolvecyber.xyz` over port `80`.  
 
+![Task 6 Screenshot](sreenshots/task6_wireshark.png)
 
 
 ---
@@ -111,10 +109,10 @@ A malicious document was downloaded via `chrome.exe`:
 - Using PCAP analysis, location of the malicious payload URL embedded in `.doc`.  
 - C2 binary uses Base64 encoded `q` parameter in GET request to `…/9ab62b5` using Nim as programming language.
 
+![Task 7 Screenshot](sreenshots/task7.png)
 
 
 ---
-
 
 
 
@@ -122,8 +120,10 @@ A malicious document was downloaded via `chrome.exe`:
 
 - Decoded traffic from Stage 2 shows attacker enumerating ports, stole credentials, and used a reverse SOCKS proxy to reach internal services.
 
+![Task 8 Screenshot](sreenshots/task8_decode.png)
 
 
+![Task 8 Screenshot](sreenshots/task8_proxy.png)
 
 ---
 
@@ -132,7 +132,7 @@ A malicious document was downloaded via `chrome.exe`:
 - Attacker downloaded `spf.exe` - identified as **PrintSpoofer** and exploited `SeImpersonatePrivilege`.
 
 - Stage 2 then executed `final.exe` connecting to a new port `8080` for C2.  
-
+![Task 9 Screenshot](sreenshots/task9.png)
 
 
 ---
@@ -145,6 +145,9 @@ A malicious document was downloaded via `chrome.exe`:
 - Event:`4720`, `4732`.
 - Also executed commands via `sc.exe` for persistence.  
 
+![Task 10 Screenshot](sreenshots/task10_addusers.png)
+
+![Task 10 Screenshot](sreenshots/task10_persistence.png)
 
 
 ---
