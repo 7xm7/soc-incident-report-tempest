@@ -36,7 +36,7 @@ I ran a PowerShell script to get all hashes:
 
 ---
 
-**## Task 2 - Initial Access: Performed log analysis to map the attacker0s first actions and entry method.**
+**## Task 2 - Initial Access: Performed log analysis to map the attackers first actions and entry method.**
 
 A malicious document was downloaded via `chrome.exe`:
  
