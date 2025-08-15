@@ -145,9 +145,9 @@ A malicious document was downloaded via `chrome.exe`:
 - Event:`4720`, `4732`.
 - Also executed commands via `sc.exe` for persistence.  
 
-![Task 10 Screenshot](sreenshots/task10_addusers.png)
+![Task 10 Screenshot](screenshots_tempest/task10_addusers.png)
 
-![Task 10 Screenshot](sreenshots/task10_persistence.png)
+![Task 10 Screenshot](screenshots_tempest/task10_persistence.png)
 
 
 ---
